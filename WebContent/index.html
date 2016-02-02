@@ -319,6 +319,12 @@ html, body {
 			});
 			origin = null;
 			destination = null;
+			google.maps.event.addListener(map, "click", function(e) {
+				directionsDisplay.setMap(null);
+				document.getElementById('lblStart').innerHTML = '';
+				document.getElementById('lblEnd').innerHTML = '';
+				google.maps.event.clearListeners(map, 'click');
+			});
 		}
 
 		function getStartingPoint() {
@@ -359,21 +365,26 @@ html, body {
 					bound1 = e.latLng;
 				} else {
 					bound2 = e.latLng;
-					rectangle = new google.maps.Rectangle({
-						strokeColor : '#FF0000',
-						strokeOpacity : 0.8,
-						strokeWeight : 2,
-						fillColor : '#FF0000',
-						fillOpacity : 0.35,
-						bounds : {
-							north : bound2.lat(),
-							south : bound1.lat(),
-							east : bound2.lng(),
-							west : bound1.lng()
-						}
-					});
-					rectangle.setMap(map);
-					prepareGetQuery();
+					if(bound2.lat() > bound1.lat()) {
+						rectangle = new google.maps.Rectangle({
+							strokeColor : '#FF0000',
+							strokeOpacity : 0.8,
+							strokeWeight : 2,
+							fillColor : '#FF0000',
+							fillOpacity : 0.35,
+							bounds : {
+								north : bound2.lat(),
+								south : bound1.lat(),
+								east : bound2.lng(),
+								west : bound1.lng()
+							}
+						});
+						rectangle.setMap(map);
+						prepareGetQuery();
+					}else{
+						google.maps.event.clearListeners(map, 'click');
+						showMessage('Warning: First point is the lower left corner of the rectangle. Please try again.');
+					}
 				}
 			});
 		}
@@ -450,6 +461,7 @@ html, body {
 
 		function setVisitor(sql, locationId, name, address, specialty, lati,
 				longi, numVisitors, rowid, table) {
+			var infoElement = document.getElementById('infoDiv');
 			var config = {
 				'client_id' : clientId,
 				'scope' : scopes
@@ -513,8 +525,7 @@ html, body {
 														+ longi + '</div>';
 
 												if(txtHtml) {
-													document
-													.getElementById('infoDiv').innerHTML = txtHtml;
+													infoElement.innerHTML = txtHtml;
 												}
 												
 												if (document
@@ -612,8 +623,8 @@ html, body {
 		function computeStats(arr) {
 			//lets assume a customers spends an average of Php 300.00 per visit
 			var amountPerVisit = 300;
-
-			document.getElementById('stats').innerHTML = '';
+			var statsElement = document.getElementById('stats');
+			statsElement.innerHTML = '';
 			var totalCustomers = 0;
 			for (var i = 0; i < arr.length; i++) {
 				totalCustomers = totalCustomers + arr[i][1];
@@ -645,7 +656,7 @@ html, body {
 			tableString = tableString
 					+ 'Note: Assume each visitor spends an average of Php '
 					+ amountPerVisit + ' for each visit.';
-			document.getElementById('stats').innerHTML = tableString;
+			statsElement.innerHTML = tableString;
 		}
 
 		function getTable(type) {
@@ -686,7 +697,7 @@ html, body {
 	</script>
 
 	<script
-		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIN-T_MwkdQPcOzmwalwdDG5nbP06KkDw&libraries=places&callback=initMap"
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIN-T_MwkdQPcOzmwalwdDG5nbP06KkDw&libraries=places,visualization&callback=initMap"
 		async defer></script>
 
 	<script src="https://apis.google.com/js/client.js"></script>
