@@ -7,30 +7,27 @@
 <style>
 html, body {
 	height: 100%;
-    margin-left: 20px;
+	margin-left: 20px; margin-bottom : 20px; margin-right : 20px;
+	padding: 0;
 	margin-bottom: 20px;
 	margin-right: 20px;
-    padding: 0;
 }
 
 #map {
 	height: 80%;
 }
 </style>
-<script src="https://apis.google.com/js/client.js"></script>
+
 </head>
 <body onload='load();'>
-	<h4 style="margin:0px">Restaurants in Cebu</h4>
+	<h4 style="margin: 0px">Restaurants in Cebu</h4>
 	<table>
 		<tr>
 			<td style="text-align: right"><label>Specialty : </label></td>
-			<td>
-				<input id="chkFil" type="checkbox">Filipino</input>
-				<input id="chkJa" type="checkbox">Japanese</input>
-				<input id="chkKo" type="checkbox">Korean</input>
-				<input id="chkCh" type="checkbox">Chinese</input>
-				<input id="chkFast" type="checkbox">Fastfood</input>
-			</td>
+			<td><input id="chkFil" type="checkbox">Filipino <input
+				id="chkJa" type="checkbox">Japanese <input id="chkKo"
+				type="checkbox">Korean <input id="chkCh" type="checkbox">Chinese
+				<input id="chkFast" type="checkbox">Fastfood</td>
 		</tr>
 		<tr>
 			<td style="text-align: right"><label>Direction : </label></td>
@@ -48,7 +45,7 @@ html, body {
 		<tr>
 			<td style="text-align: right"><label>Stats : </label></td>
 			<td><input id="butStats" type="button" value="Show"
-				onclick="showStats();" /></td>
+				onclick="showStats(1);" /></td>
 		</tr>
 	</table>
 
@@ -78,6 +75,12 @@ html, body {
 		var clientId = '630420208849-jfmabdjfemktm78268gqa7h54edlcgeq.apps.googleusercontent.com';
 		var scopes = 'https://www.googleapis.com/auth/fusiontables';
 		var rowid = 0;
+		var fil = 'Filipino';
+		var jap = 'Japanese';
+		var kor = 'Korean';
+		var chi = 'Chinese';
+		var fast = 'Fastfood';
+		var visitorArray;
 
 		function initMap() {
 
@@ -93,35 +96,35 @@ html, body {
 					mapOptions);
 			infowindow = new google.maps.InfoWindow();
 
-			layerFil = new google.maps.FusionTablesLayer({
+			var layerFil = new google.maps.FusionTablesLayer({
 				query : {
 					select : 'Address',
 					from : filTable
 				}
 			});
 
-			layerJa = new google.maps.FusionTablesLayer({
+			var layerJa = new google.maps.FusionTablesLayer({
 				query : {
 					select : 'Address',
 					from : japTable
 				}
 			});
 
-			layerKo = new google.maps.FusionTablesLayer({
+			var layerKo = new google.maps.FusionTablesLayer({
 				query : {
 					select : 'Address',
 					from : korTable
 				}
 			});
 
-			layerCh = new google.maps.FusionTablesLayer({
+			var layerCh = new google.maps.FusionTablesLayer({
 				query : {
 					select : 'Address',
 					from : chiTable
 				}
 			});
 
-			layerFast = new google.maps.FusionTablesLayer({
+			var layerFast = new google.maps.FusionTablesLayer({
 				query : {
 					select : 'Address',
 					from : fastTable
@@ -169,40 +172,136 @@ html, body {
 			};
 
 			google.maps.event.addListener(layerFil, 'click', function(e) {
-				showLayerInfo(e);
+				if (origin != undefined && origin != null && origin != '') {
+					destination = e.latLng;
+					document.getElementById('lblEnd').innerHTML = e.row.Name.value;
+				} else {
+					if (e) {
+						e.infoWindowHtml = '<div id="infoDiv"></div>';
+						showLayerInfo(e, fil);
+					}
+				}
 			});
 
 			google.maps.event.addListener(layerJa, 'click', function(e) {
-				showLayerInfo(e);
+				if (origin != undefined && origin != null && origin != '') {
+					destination = e.latLng;
+					document.getElementById('lblEnd').innerHTML = e.row.Name.value;
+				} else {
+					if (e) {
+						e.infoWindowHtml = '<div id="infoDiv"></div>';
+						showLayerInfo(e, jap);
+					}
+				}
 			});
 
 			google.maps.event.addListener(layerKo, 'click', function(e) {
-				showLayerInfo(e);
+				if (origin != undefined && origin != null && origin != '') {
+					destination = e.latLng;
+					document.getElementById('lblEnd').innerHTML = e.row.Name.value;
+				} else {
+					if (e) {
+						e.infoWindowHtml = '<div id="infoDiv"></div>';
+						showLayerInfo(e, kor);
+					}
+				}
 			});
 
 			google.maps.event.addListener(layerCh, 'click', function(e) {
-				showLayerInfo(e);
+				if (origin != undefined && origin != null && origin != '') {
+					destination = e.latLng;
+					document.getElementById('lblEnd').innerHTML = e.row.Name.value;
+				} else {
+					if (e) {
+						e.infoWindowHtml = '<div id="infoDiv"></div>';
+						showLayerInfo(e, chi);
+					}
+				}
 			});
 
 			google.maps.event.addListener(layerFast, 'click', function(e) {
-				showLayerInfo(e);
+				if (origin != undefined && origin != null && origin != '') {
+					destination = e.latLng;
+					document.getElementById('lblEnd').innerHTML = e.row.Name.value;
+				} else {
+					if (e) {
+						e.infoWindowHtml = '<div id="infoDiv"></div>';
+						showLayerInfo(e, fast);
+					}
+				}
 			});
 
 			directionsDisplay = new google.maps.DirectionsRenderer();
 			directionsService = new google.maps.DirectionsService();
-
+			
 		}
 
-		function showLayerInfo(e) {
-			e.infoWindowHtml = '<div><input type="button" value="Click here as a visitor" style="color:red" onclick="registerAsVisitor(\''
-					+ e.row.Specialty.value
-					+ '\',\''
-					+ e.row.LocationID.value
-					+ '\');"/></div><br>' + e.infoWindowHtml;
-			destination = e.latLng;
-			if (origin != undefined && origin != null && origin != '') {
-				document.getElementById('lblEnd').innerHTML = e.row.Name.value;
+		function showLayerInfo(e, type) {
+			var table = getTable(type);
+			var sql = url
+					+ '?sql=SELECT ROWID,LocationID,Name,Address,Specialty,Visitors,Latitude,Longitude FROM '
+					+ table + ' WHERE LocationID=\'' + e.row.LocationID.value
+					+ '\'&key=' + key;
+			var xmlHttp = new XMLHttpRequest();
+			xmlHttp.onload = function() {
+				var data = eval('(' + xmlHttp.responseText + ')');
+				if (data) {
+					var rowid = data.rows[0][0];
+					var locationId = data.rows[0][1];
+					var name = (data.rows[0][2]).replace("'", '');
+					var address = (data.rows[0][3]).replace("'", '');
+					var specialty = data.rows[0][4];
+					var visitors = parseInt(data.rows[0][5]);
+					var lati = data.rows[0][6];
+					var longi = data.rows[0][7];
+
+					var txtHtml = '<div><input type="button" value="Click here as a visitor" style="color:red" onclick="registerAsVisitor(\''
+							+ locationId
+							+ '\',\''
+							+ name
+							+ '\',\''
+							+ address
+							+ '\',\''
+							+ specialty
+							+ '\',\''
+							+ visitors
+							+ '\',\''
+							+ lati
+							+ '\',\''
+							+ longi
+							+ '\',\''
+							+ rowid
+							+ '\');"/></div><br>'
+							+ '<div class="googft-info-window"></div>'
+							+ '<b>LocationID:</b> '
+							+ locationId
+							+ '<br>'
+							+ '<b>Name:</b> '
+							+ name
+							+ '<br>'
+							+ '<b>Address:</b> '
+							+ address
+							+ '<br>'
+							+ '<b>Specialty:</b> '
+							+ specialty
+							+ '<br>'
+							+ '<b>Visitors:</b> '
+							+ visitors
+							+ '<br>'
+							+ '<b>Latitude:</b> '
+							+ lati
+							+ '<br>'
+							+ '<b>Longitude:</b> ' + longi + '</div>';
+
+					document.getElementById('infoDiv').innerHTML = txtHtml;
+					/*destination = e.latLng;
+					if (origin != undefined && origin != null && origin != '') {
+						document.getElementById('lblEnd').innerHTML = e.row.Name.value;
+					}*/
+				}
 			}
+			xmlHttp.open("GET", sql, true);
+			xmlHttp.send(null);
 		}
 
 		function showDirection() {
@@ -218,6 +317,8 @@ html, body {
 					directionsDisplay.setDirections(result);
 				}
 			});
+			origin = null;
+			destination = null;
 		}
 
 		function getStartingPoint() {
@@ -314,35 +415,14 @@ html, body {
 			}
 		}
 
-		function registerAsVisitor(specialty, locationId) {
-			var table;
-			if (specialty == 'Filipino') {
-				table = filTable;
-			} else if (specialty == 'Japanese') {
-				table = japTable;
-			} else if (specialty == 'Korean') {
-				table = korTable;
-			} else if (specialty == 'Chinese') {
-				table = chiTable;
-			} else if (specialty == 'Fastfood') {
-				table = fastTable;
-			} else {
-				return;
-			}
-			var rowIdSql = url + '?sql=SELECT ROWID,Visitors FROM ' + table
-					+ ' WHERE LocationID=\'' + locationId + '\'&key=' + key;
-			var xmlHttp = new XMLHttpRequest();
-			xmlHttp.onload = function() {
-				var data = eval('(' + xmlHttp.responseText + ')');
-				var rowid = data.rows[0][0];
-				var numVisitors = parseInt(data.rows[0][1]) + 1;
-				var sql = 'UPDATE ' + table + ' SET Visitors=' + numVisitors
-						+ ' WHERE ROWID=\'' + rowid + '\'';
-				setVisitor(sql);
-
-			}
-			xmlHttp.open("GET", rowIdSql, true);
-			xmlHttp.send(null);
+		function registerAsVisitor(locationId, name, address, specialty,
+				visitors, lati, longi, rowid) {
+			var table = getTable(specialty);
+			var numVisitors = parseInt(visitors) + 1;
+			var sql = 'UPDATE ' + table + ' SET Visitors=' + numVisitors
+					+ ' WHERE ROWID=\'' + rowid + '\'';
+			setVisitor(sql, locationId, name, address, specialty, lati, longi,
+					numVisitors, rowid, table);
 		}
 
 		function getTableRecs(url) {
@@ -356,7 +436,6 @@ html, body {
 		}
 
 		function getNumberOfRestaurants(data) {
-			//console.log(data);
 			var places = data.rows;
 			var bounds = rectangle.getBounds();
 			for (var i = 0; i < places.length; i++) {
@@ -369,112 +448,163 @@ html, body {
 					+ numOfRestaurants;
 		}
 
-		function setVisitor(sql) {
+		function setVisitor(sql, locationId, name, address, specialty, lati,
+				longi, numVisitors, rowid, table) {
 			var config = {
 				'client_id' : clientId,
 				'scope' : scopes
 			};
-			gapi.auth.authorize(config, function(authResult) {
-				var restRequest = gapi.client.request({
-					path : '/fusiontables/v2/query',
-					body : 'sql=' + encodeURIComponent(sql),
-					headers : {
-						'Content-Type' : 'application/x-www-form-urlencoded'
-					},
-					method : 'POST'
-				});
+			gapi.auth
+					.authorize(
+							config,
+							function(authResult) {
+								var restRequest = gapi.client
+										.request({
+											path : '/fusiontables/v2/query',
+											body : 'sql='
+													+ encodeURIComponent(sql),
+											headers : {
+												'Content-Type' : 'application/x-www-form-urlencoded'
+											},
+											method : 'POST'
+										});
 
-				restRequest.execute(function(resp) {
-					var output = JSON.stringify(resp);
-					//console.log(output);
-				});
-			});
+								restRequest
+										.execute(function(resp) {
+											//var output = JSON.stringify(resp);
+											if (resp) {
+												var txtHtml = '<div><input type="button" value="Click here as a visitor" style="color:red" onclick="registerAsVisitor(\''
+														+ locationId
+														+ '\',\''
+														+ name
+														+ '\',\''
+														+ address
+														+ '\',\''
+														+ specialty
+														+ '\',\''
+														+ numVisitors
+														+ '\',\''
+														+ lati
+														+ '\',\''
+														+ longi
+														+ '\',\''
+														+ rowid
+														+ '\');"/></div><br>'
+														+ '<div class="googft-info-window"></div>'
+														+ '<b>LocationID:</b> '
+														+ locationId
+														+ '<br>'
+														+ '<b>Name:</b> '
+														+ name
+														+ '<br>'
+														+ '<b>Address:</b> '
+														+ address
+														+ '<br>'
+														+ '<b>Specialty:</b> '
+														+ specialty
+														+ '<br>'
+														+ '<b>Visitors:</b> '
+														+ numVisitors
+														+ '<br>'
+														+ '<b>Latitude:</b> '
+														+ lati
+														+ '<br>'
+														+ '<b>Longitude:</b> '
+														+ longi + '</div>';
+
+												if(txtHtml) {
+													document
+													.getElementById('infoDiv').innerHTML = txtHtml;
+												}
+												
+												if (document
+														.getElementById('butStats').value == 'Hide') {
+													setTimeout(
+															checkVisitorValue(
+																	visitorArray,
+																	table,
+																	specialty),
+															5000);
+												}
+											}
+										});
+							});
 		}
 
-		function showStats() {
-			var visitorArray = [];
+		function showStats(sw) {
+			visitorArray = [];
 			fetchData([ 'fil', 'jap', 'kor', 'chi', 'fast' ], function(type) {
-				if (type == 'fil') {
-					table = filTable;
-				} else if (type == 'jap') {
-					table = japTable;
-				} else if (type == 'kor') {
-					table = korTable;
-				} else if (type == 'chi') {
-					table = chiTable;
-				} else if (type == 'fast') {
-					table = fastTable;
-				} else {
-					return;
-				}
+				var table = getTable(type);
 				var sql = 'SELECT SUM(Visitors) FROM ' + table;
 				var countUrl = url + '?sql=' + sql + '&key=' + key;
 				var xmlHttp = new XMLHttpRequest();
 				xmlHttp.onload = function() {
 					var data = eval('(' + xmlHttp.responseText + ')');
-					if (type == 'fil') {
-						visitorArray.push([ 'Filipino',
-								parseInt(data.rows[0][0]) ]);
-						if (visitorArray.length == 5) {
-							computeStats(visitorArray);
+					if (data) {
+						if (type == fil) {
+							visitorArray
+									.push([ fil, parseInt(data.rows[0][0]) ]);
+							if (visitorArray.length == 5) {
+								computeStats(visitorArray);
+							}
+						} else if (type == jap) {
+							visitorArray
+									.push([ jap, parseInt(data.rows[0][0]) ]);
+							if (visitorArray.length == 5) {
+								computeStats(visitorArray);
+							}
+						} else if (type == kor) {
+							visitorArray
+									.push([ kor, parseInt(data.rows[0][0]) ]);
+							if (visitorArray.length == 5) {
+								computeStats(visitorArray);
+							}
+						} else if (type == chi) {
+							visitorArray
+									.push([ chi, parseInt(data.rows[0][0]) ]);
+							if (visitorArray.length == 5) {
+								computeStats(visitorArray);
+							}
+						} else if (type == fast) {
+							visitorArray
+									.push([ fast, parseInt(data.rows[0][0]) ]);
+							if (visitorArray.length == 5) {
+								computeStats(visitorArray);
+							}
+						} else {
+							return;
 						}
-					} else if (type == 'jap') {
-						visitorArray.push([ 'Japanese',
-								parseInt(data.rows[0][0]) ]);
-						if (visitorArray.length == 5) {
-							computeStats(visitorArray);
-						}
-					} else if (type == 'kor') {
-						visitorArray
-								.push([ 'Korean', parseInt(data.rows[0][0]) ]);
-						if (visitorArray.length == 5) {
-							computeStats(visitorArray);
-						}
-					} else if (type == 'chi') {
-						visitorArray.push([ 'Chinese',
-								parseInt(data.rows[0][0]) ]);
-						if (visitorArray.length == 5) {
-							computeStats(visitorArray);
-						}
-					} else if (type == 'fast') {
-						visitorArray.push([ 'Fastfood',
-								parseInt(data.rows[0][0]) ]);
-						if (visitorArray.length == 5) {
-							computeStats(visitorArray);
-						}
-					} else {
-						return;
 					}
 				}
 				xmlHttp.open("GET", countUrl, true);
 				xmlHttp.send(null);
 			});
 
-			var statsDiv = document.getElementById('stats');
-			var butStats = document.getElementById('butStats');
-			if (butStats.value == 'Show') {
-
-				statsDiv.style.display = 'block';
-				butStats.value = 'Hide';
-			} else {
-				statsDiv.style.display = 'none';
-				butStats.value = 'Show';
+			if (sw == 1) {
+				var statsDiv = document.getElementById('stats');
+				var butStats = document.getElementById('butStats');
+				if (butStats.value == 'Show') {
+					statsDiv.style.display = 'block';
+					butStats.value = 'Hide';
+				} else {
+					statsDiv.style.display = 'none';
+					butStats.value = 'Show';
+				}
 			}
-
 		}
 
 		function fetchData(arr, callback) {
 			for (var i = 0; i < arr.length; i++) {
 				if (arr[i] == 'fil') {
-					callback('fil')
+					callback(fil)
 				} else if (arr[i] == 'jap') {
-					callback('jap')
+					callback(jap)
 				} else if (arr[i] == 'kor') {
-					callback('kor')
+					callback(kor)
 				} else if (arr[i] == 'chi') {
-					callback('chi')
+					callback(chi)
 				} else if (arr[i] == 'fast') {
-					callback('fast')
+					callback(fast)
 				}
 			}
 		}
@@ -482,7 +612,7 @@ html, body {
 		function computeStats(arr) {
 			//lets assume a customers spends an average of Php 300.00 per visit
 			var amountPerVisit = 300;
-			
+
 			document.getElementById('stats').innerHTML = '';
 			var totalCustomers = 0;
 			for (var i = 0; i < arr.length; i++) {
@@ -505,18 +635,53 @@ html, body {
 						+ ((arr[i][1] / totalCustomers) * 100).toFixed(2);
 				tableString = tableString + '</td>';
 				tableString = tableString + '<td style="text-align:center">';
-				tableString = tableString + (arr[i][1] * amountPerVisit).toFixed(2);
+				tableString = tableString
+						+ (arr[i][1] * amountPerVisit).toFixed(2);
 				tableString = tableString + '</td>';
 				tableString = tableString + '</tr>';
 			}
 			tableString = tableString + '</tbody>';
 			tableString = tableString + '</table>';
-			tableString =tableString + 'Note: Assume each visitor spends an average of Php300 for each visit.';
+			tableString = tableString
+					+ 'Note: Assume each visitor spends an average of Php '
+					+ amountPerVisit + ' for each visit.';
+			document.getElementById('stats').innerHTML = tableString;
+		}
 
-			var str = document.getElementById('stats').innerHTML;
-			str = str + tableString;
-			document.getElementById('stats').innerHTML = str;
-			//console.log(str);
+		function getTable(type) {
+			if (type == 'Filipino') {
+				return filTable;
+			} else if (type == 'Japanese') {
+				return japTable;
+			} else if (type == 'Korean') {
+				return korTable;
+			} else if (type == 'Chinese') {
+				return chiTable;
+			} else if (type == 'Fastfood') {
+				return fastTable;
+			} else {
+				return;
+			}
+		}
+
+		function checkVisitorValue(arr, table, type) {
+			//document.getElementById('stats').innerHTML = tableString;
+			var sql = 'SELECT SUM(Visitors) FROM ' + table;
+			var countUrl = url + '?sql=' + sql + '&key=' + key;
+			var xmlHttp = new XMLHttpRequest();
+			xmlHttp.onload = function() {
+				var data = eval('(' + xmlHttp.responseText + ')');
+				if (data) {
+					for (var i = 0; i < arr.length; i++) {
+						if (arr[i][0] == type) {
+							arr[i][1] = parseInt(data.rows[0][0]);
+						}
+					}
+					setTimeout(computeStats(arr), 2000);
+				}
+			}
+			xmlHttp.open("GET", countUrl, true);
+			xmlHttp.send(null);
 		}
 	</script>
 
@@ -524,6 +689,7 @@ html, body {
 		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIN-T_MwkdQPcOzmwalwdDG5nbP06KkDw&libraries=places&callback=initMap"
 		async defer></script>
 
+	<script src="https://apis.google.com/js/client.js"></script>
 
 
 </body>
